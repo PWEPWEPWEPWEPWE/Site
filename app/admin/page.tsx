@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -9,11 +9,9 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'orders' | 'users'>('orders');
   
-  // Sipariş verileri
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  // Yönetici hesap verileri
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
   const [newAdminUsername, setNewAdminUsername] = useState('');
   const [newAdminPassword, setNewAdminPassword] = useState('');
@@ -216,7 +214,6 @@ export default function AdminPage() {
           )
         ) : (
           <div className="space-y-6">
-            {/* Yeni Yönetici Ekleme Formu */}
             <form onSubmit={handleAddAdmin} className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-4">
               <h2 className="text-lg font-bold text-cyan-400">Yeni Yönetici Ekle</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,7 +242,6 @@ export default function AdminPage() {
               </button>
             </form>
 
-            {/* Yönetici Listesi */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
               <h2 className="text-lg font-bold text-cyan-400">Kayıtlı Yöneticiler</h2>
               <div className="space-y-3">

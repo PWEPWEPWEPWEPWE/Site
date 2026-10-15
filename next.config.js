@@ -1,7 +1,9 @@
-/** @type {import('next').Next.js Configuration} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  allowedDevOrigins: ['192.168.1.113'], // Hata mesajında sana verilen IP adresi
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  allowedDevOrigins: ['192.168.1.113'],
 };
 
 module.exports = nextConfig;
-

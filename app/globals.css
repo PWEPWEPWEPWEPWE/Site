@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Tailwind Tema Ayarları ve Yeni Değişken Tanımlamaları */
+@theme inline {
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* Orijinal Renkler */
+  --color-background: var(--bg-0);
+  --color-foreground: var(--text-100);
+
+  /* Yeni Bileşenler (SmoothButton ve Kartlar) İçin Gerekenler */
+  --shadow-custom: var(--shadow-custom);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand: var(--brand);
+}
+
+:root {
+  /* Senin Orijinal Temel Renklerin */
+  --bg-0: #09090b;
+  --bg-100: #18181b;
+  --bg-200: #27272a;
+  --bg-300: #3f3f46;
+  --text-100: #fafafa;
+  --text-200: #e4e4e7;
+  --text-300: #a1a1aa;
+  --text-400: #71717a;
+  --radius: 0.5rem;
+
+  /* AuraX Studio Mor (Brand) Renkleri ve UI Değişkenleri */
+  --brand: oklch(0.45 0.2 290); /* Neon Mor */
+  --brand-secondary: oklch(0.35 0.2 290); /* Koyu Mor */
+  --card: #09090b;
+  --foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: rgba(255, 255, 255, 0.1);
+
+  /* Karanlık tema kart gölgelendirmesi (Varsayılan root'a da eklendi) */
+  --shadow-custom: 0px -1px 0px 0px hsla(0, 0%, 100%, 0.06),
+    0px 0px 0px 1px hsla(0, 0%, 100%, 0.06), 0px 0px 0px 1px #27272a,
+    0px 1px 2px 0px rgba(0, 0, 0, 0.32), 0px 2px 4px 0px rgba(0, 0, 0, 0.32);
+}
+
+/* Koyu Tema Sınıfı (Dark Mode) İçin Özel Gölge Tanımı */
+.dark {
+  --shadow-custom: 0px -1px 0px 0px hsla(0, 0%, 100%, 0.06),
+    0px 0px 0px 1px hsla(0, 0%, 100%, 0.06), 0px 0px 0px 1px #27272a,
+    0px 1px 2px 0px rgba(0, 0, 0, 0.32), 0px 2px 4px 0px rgba(0, 0, 0, 0.32);
+}
+
+/* Senin Orijinal Animasyonun */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+==================================================
+EKSTRA: Özel Kaydırma Çubuğu (Scrollbar)
+Sitenin bütünüyle uyumlu koyu ve mor detaylı scrollbar
+==================================================
+*/
+::-webkit-scrollbar {
+  width: 8px; /* Daha ince, zarif bir kaydırma çubuğu */
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b; /* Sitenin ana arka plan rengi */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f3f46; /* Koyu gri, belirsiz renk */
+  border-radius: 10px; /* Yuvarlak hatlar */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.6); /* Fareyle üstüne gelince AuraX Moru */
+}

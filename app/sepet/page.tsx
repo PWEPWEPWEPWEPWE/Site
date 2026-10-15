@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, ShoppingBag, ArrowLeft, Send, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useStore } from '@/context/store-context';
 import { useLanguage } from '@/context/language-context';
 import Link from 'next/link';
 
@@ -13,28 +12,48 @@ import { Button } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
 
 export default function SepetPage() {
-    // cartTotal (Toplam Fiyat) verisini de context'ten çekiyoruz
     const { cart, removeFromCart, clearCart, cartTotal } = useCart();
-    const { addOrder } = useStore();
     const { t } = useLanguage();
 
     const [fullName, setFullName] = useState('');
     const [contact, setContact] = useState('');
     const [notes, setNotes] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Butona basılınca bekleme animasyonu için eklendi
 
-    const handleCheckout = (e: React.FormEvent) => {
+    const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
         if (cart.length === 0) return;
+        setIsSubmitting(true);
 
-        // item.name yerine item.title kullanıyoruz (Senin context yapınla uyumlu)
-        const productNames = cart.map((item: any) => `${item.title} (${item.price} ₺)`).join(" | ");
-        const fullNotes = `Sepetteki Ürünler: ${productNames} -- Toplam: ${cartTotal} ₺ -- Müşteri Notu: ${notes}`;
+        try {
+            // Sepetteki verileri doğrudan Cloudflare D1 veritabanına (Buluta) yolluyoruz
+            await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_info: { 
+                        fullName: fullName, 
+                        contact: contact, 
+                        notes: notes 
+                    },
+                    items: cart, // Sepetteki tüm ürünlerin listesi
+                    total: cartTotal // Toplam ödenecek tutar
+                })
+            });
 
-        addOrder({ planName: "Sepet Alışverişi", fullName, contact, notes: fullNotes });
-        setSubmitted(true);
-        clearCart();
+            // İşlem başarılıysa ekranı "Sipariş Alındı" sayfasına çevir ve sepeti temizle
+            setSubmitted(true);
+            clearCart();
+            
+        } catch (error) {
+            console.error("Sipariş gönderilirken hata oluştu:", error);
+            alert("Siparişiniz gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.");
+        } finally {
+            setIsSubmitting(false);
+        }
 
+        // 4 Saniye sonra onay ekranını kapatır
         setTimeout(() => setSubmitted(false), 4000);
     };
 
@@ -85,7 +104,7 @@ export default function SepetPage() {
                                     </span>
                                 )}
                             </div>
-                            
+
                             {cart.length === 0 ? (
                                 <Empty className="py-20 bg-white/[0.01]">
                                     <EmptyHeader>
@@ -106,7 +125,7 @@ export default function SepetPage() {
                             ) : (
                                 <div className="space-y-4">
                                     {cart.map((item: any, index: number) => (
-                                        <motion.div 
+                                        <motion.div
                                             key={item.cartId}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
@@ -127,7 +146,6 @@ export default function SepetPage() {
                                                         <p className="text-sm text-purple-400 font-mono mt-1 font-bold">{item.price} ₺</p>
                                                     </div>
                                                 </div>
-                                                {/* Silme işleminde id yerine senin sistemindeki cartId'yi kullanıyoruz */}
                                                 <button onClick={() => removeFromCart(item.cartId)} className="w-12 h-12 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/20 transition-colors" title="Sil">
                                                     <Trash2 size={20} />
                                                 </button>
@@ -158,13 +176,21 @@ export default function SepetPage() {
                                         <textarea rows={3} placeholder="Varsa özel istekleriniz..." value={notes} onChange={e => setNotes(e.target.value)} className="w-full px-5 py-4 bg-black/50 border border-white/10 rounded-2xl text-sm text-white focus:border-purple-500 outline-none resize-none transition-colors shadow-inner"></textarea>
                                     </div>
 
-                                    <Button 
-                                        type="submit" 
-                                        disabled={cart.length === 0} 
+                                    <Button
+                                        type="submit"
+                                        disabled={cart.length === 0 || isSubmitting}
                                         className="w-full mt-4"
                                         variant={cart.length === 0 ? "secondary" : "default"}
                                     >
-                                        <Send size={18} className="mr-2" /> Siparişi Tamamla
+                                        {isSubmitting ? (
+                                            <span className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> Sipariş Gönderiliyor...
+                                            </span>
+                                        ) : (
+                                            <span className="flex items-center">
+                                                <Send size={18} className="mr-2" /> Siparişi Tamamla
+                                            </span>
+                                        )}
                                     </Button>
                                 </form>
                             </div>
@@ -175,4 +201,3 @@ export default function SepetPage() {
         </main>
     );
 }
-

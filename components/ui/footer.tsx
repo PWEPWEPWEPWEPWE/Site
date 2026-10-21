@@ -3,10 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/language-context';
-import AuraXLogo from '@/components/AuraXLogo'; // Logomuzun dosya yolu
+import AuraXLogo from '@/components/AuraXLogo';
 
 export default function Footer() {
-    const { t, lang } = useLanguage(); // Dil verilerini ve aktif dili alıyoruz
+    const { t, lang } = useLanguage();
 
     // Çeviri dosyasında olmayan çok detaylı yasal telif metnini her dilde koruyoruz
     const legalNoticeText = {
@@ -27,10 +27,12 @@ export default function Footer() {
 
                 {/* Sol Kısım */}
                 <div className="max-w-xl">
-                    <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
-                        {/* 3D ve Neon animasyonlu AuraX Logomuz */}
-                        <AuraXLogo className="w-9 h-9" />
-                        <span className="text-2xl font-bold tracking-tighter text-white">
+                    <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
+                        {/* Logo boyutu metin yüksekliğiyle eşitlenecek şekilde küçültüldü */}
+                        <AuraXLogo className="w-7 h-7" />
+                        
+                        {/* Metin, logonun tam optik merkezine oturması için milimetrik hizalandı */}
+                        <span className="text-2xl font-bold tracking-tighter text-white pt-1">
                             AURAX <span className="text-purple-500 font-serif italic">STUDIO</span>
                         </span>
                     </Link>

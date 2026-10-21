@@ -23,6 +23,7 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@next/swc-android-arm64": "^13.2.4",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "typescript": "^5.2.2",

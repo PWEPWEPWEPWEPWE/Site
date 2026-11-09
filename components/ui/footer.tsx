@@ -10,8 +10,12 @@ export default function Footer() {
 
                 {/* Sol Kısım */}
                 <div className="max-w-xl">
-                    <Link href="/" className="text-2xl font-bold tracking-tighter text-white inline-block mb-4">
-                        AURAX <span className="text-purple-500 font-serif italic">STUDIO</span>
+                    <Link href="/" className="inline-block mb-6 group">
+                        <img 
+                            src="/Aurax_20261109_044639_0000.svg" 
+                            alt="AuraX Studio" 
+                            className="h-12 w-auto object-contain rounded-lg shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-transform group-hover:scale-105" 
+                        />
                     </Link>
                     <p className="text-gray-400 text-sm leading-relaxed mb-8">
                         Markanızı dijital dünyada bir adım öne taşıyan, modern arayüzler ve unutulmaz kurumsal kimlikler üreten premium tasarım stüdyosu.

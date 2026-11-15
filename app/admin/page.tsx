@@ -306,9 +306,16 @@ export default function AdminDashboard() {
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `linear-gradient(135deg, white 0.5px, transparent 0.5px), linear-gradient(45deg, white 0.5px, transparent 0.5px)`, backgroundSize: '30px 30px' }} />
 
                 <div className="text-center space-y-1 mb-5">
-                  <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.8 }} className="mx-auto w-10 h-10 rounded-full border border-white/10 flex items-center justify-center relative overflow-hidden">
-                    <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">A</span>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }} 
+                    animate={{ scale: 1, opacity: 1 }} 
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  >
+                    <img 
+                      src="/Aurax_20261109_044639_0000.svg" 
+                      alt="AuraX Studio" 
+                      className="mx-auto mb-4 h-14 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" 
+                    />
                   </motion.div>
 
                   <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">

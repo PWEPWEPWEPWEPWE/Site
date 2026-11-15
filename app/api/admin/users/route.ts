@@ -1,8 +1,18 @@
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
 export const runtime = 'edge';
+
+function getDB() {
+  try {
+    return (getRequestContext() as any)?.env?.DB || (process.env as any)?.DB;
+  } catch {
+    return (process.env as any)?.DB;
+  }
+}
 
 export async function GET() {
   try {
-    const { DB } = (process.env as unknown) as { DB?: any };
+    const DB = getDB();
     if (!DB) return new Response(JSON.stringify({ error: "Veritabanı bağlantısı yok" }), { status: 500, headers: { 'content-type': 'application/json' } });
 
     const { results } = await DB.prepare("SELECT id, username, status, role FROM admin_users").all();
@@ -17,7 +27,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { action, username, password, id, status } = await request.json();
-    const { DB } = (process.env as unknown) as { DB?: any };
+    const DB = getDB();
     if (!DB) return new Response(JSON.stringify({ error: "Veritabanı bağlantısı yok" }), { status: 500, headers: { 'content-type': 'application/json' } });
 
     if (action === 'create') {

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/context/cart-context";
 import { StoreProvider } from '@/context/store-context';
@@ -22,7 +21,6 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark">
       <body className={inter.className}>
-        <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
         {/* StoreProvider'ı buraya, tüm sistemin en dışına ekledik */}
         <StoreProvider>
           <LanguageProvider>

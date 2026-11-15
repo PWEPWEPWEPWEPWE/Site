@@ -155,14 +155,11 @@ export default function AdminDashboard() {
     setIsLoading(true);
     setLoginError("");
 
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const turnstileToken = formData.get('cf-turnstile-response');
-
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: loginUser, password: loginPass, turnstileToken }),
+        body: JSON.stringify({ username: loginUser, password: loginPass }),
       });
       const data = await res.json();
       
@@ -375,10 +372,6 @@ export default function AdminDashboard() {
                       </div>
                     </motion.div>
                   </motion.div>
-
-                  <div className="flex justify-center my-3">
-                    <div className="cf-turnstile" data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"} data-theme="dark"></div>
-                  </div>
 
                   <motion.button type="submit" disabled={isLoading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full relative group mt-2">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg blur opacity-40 group-hover:opacity-70 transition duration-300" />

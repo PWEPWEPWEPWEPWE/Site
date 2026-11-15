@@ -26,9 +26,6 @@ export default function SepetPage() {
         if (cart.length === 0) return;
         setIsSubmitting(true);
 
-        const formData = new FormData(e.currentTarget as HTMLFormElement);
-        const turnstileToken = formData.get('cf-turnstile-response');
-
         try {
             // Sepetteki verileri doğrudan Cloudflare D1 veritabanına (Buluta) yolluyoruz
             const res = await fetch('/api/orders', {
@@ -41,8 +38,7 @@ export default function SepetPage() {
                         notes: notes 
                     },
                     items: cart, // Sepetteki tüm ürünlerin listesi
-                    total: cartTotal, // Toplam ödenecek tutar
-                    turnstileToken
+                    total: cartTotal // Toplam ödenecek tutar
                 })
             });
             const data = await res.json();
@@ -182,10 +178,6 @@ export default function SepetPage() {
                                     <div>
                                         <label className="text-xs text-gray-400 block mb-2 font-mono uppercase tracking-wider">Ek Notlar</label>
                                         <textarea rows={3} placeholder="Varsa özel istekleriniz..." value={notes} onChange={e => setNotes(e.target.value)} className="w-full px-5 py-4 bg-black/50 border border-white/10 rounded-2xl text-sm text-white focus:border-purple-500 outline-none resize-none transition-colors shadow-inner"></textarea>
-                                    </div>
-
-                                    <div className="flex justify-center my-3">
-                                        <div className="cf-turnstile" data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"} data-theme="dark"></div>
                                     </div>
 
                                     <Button

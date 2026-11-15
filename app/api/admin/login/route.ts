@@ -1,4 +1,5 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
+import { sendEmail } from '@/lib/resend';
 
 export const runtime = 'edge';
 
@@ -28,6 +29,21 @@ export async function POST(request: Request) {
       if (user.status === 'frozen') {
         return new Response(JSON.stringify({ success: false, message: "Bu yönetici hesabı dondurulmuştur!" }), { status: 403, headers: { 'content-type': 'application/json' } });
       }
+
+      // Send admin login notification email via Resend using verified auraxstudio.com.tr domain
+      await sendEmail({
+        to: 'iletisim@auraxstudio.com.tr',
+        subject: `[Admin Girişi] ${user.username} panele giriş yaptı`,
+        html: `
+          <div style="font-family: Arial, sans-serif; background-color: #0f0f13; color: #f3f4f6; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto;">
+            <h2 style="color: #a855f7; margin-top: 0;">AuraX Studio - Admin Girişi</h2>
+            <p><strong>Yönetici:</strong> ${user.username} (${user.role})</p>
+            <p><strong>Zaman:</strong> ${new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' })}</p>
+            <p style="color: #9ca3af; font-size: 12px; margin-top: 20px;">Bu bildirim auraxstudio.com.tr altyapısı üzerinden gönderilmiştir.</p>
+          </div>
+        `,
+      });
+
       return new Response(JSON.stringify({ success: true, user: user.username, role: user.role }), {
         headers: { 'content-type': 'application/json' },
       });

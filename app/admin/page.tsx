@@ -61,14 +61,13 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [loginEmail, setLoginEmail] = useState("");
-  const [loginPass, setLoginPass] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
   const [loginStep, setLoginStep] = useState<"login" | "otp">("login");
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
   // -- 3D GİRİŞ EKRANI STATELERİ --
-  const [showPassword, setShowPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   const otpRefs = [
@@ -175,26 +174,19 @@ export default function AdminDashboard() {
     setLoginError("");
 
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch('/api/admin/send-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          email: loginEmail.trim().toLowerCase(), 
-          password: loginPass 
+          email: loginEmail.trim().toLowerCase()
         }),
       });
       const data = await res.json();
       
       if (data.success) {
-        if (data.step === 'otp_sent') {
-          setLoginStep('otp');
-        } else {
-          setCurrentUser({ id: data.user, username: data.user, role: data.role, isActive: true });
-          loadOrders();
-          loadUsers();
-        }
+        setLoginStep('otp');
       } else {
-        setLoginError(data.message || 'Hatalı yönetici bilgileri!');
+        setLoginError(data.message || 'Doğrulama kodu gönderilemedi!');
       }
     } catch (err) {
       setLoginError("Sunucu bağlantı hatası!");
@@ -212,13 +204,13 @@ export default function AdminDashboard() {
     setLoginError("");
 
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch('/api/admin/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: loginEmail.trim().toLowerCase(), 
-          password: loginPass,
-          otp: code 
+          code,
+          rememberMe
         }),
       });
       const data = await res.json();
@@ -276,7 +268,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     setCurrentUser(null);
     setLoginEmail("");
-    setLoginPass("");
+    setRememberMe(false);
     setLoginStep("login");
     setOtpCode(["", "", "", "", "", ""]);
   };
@@ -452,26 +444,18 @@ export default function AdminDashboard() {
                           </div>
                         </motion.div>
 
-                        <motion.div className={`relative ${focusedInput === "password" ? 'z-10' : ''}`} whileFocus={{ scale: 1.02 }} whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
-                          <div className="absolute -inset-[0.5px] bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                          <div className="relative flex items-center overflow-hidden rounded-lg">
-                            <Lock className={`absolute left-3 w-4 h-4 transition-all duration-300 ${focusedInput === "password" ? 'text-white' : 'text-white/40'}`} />
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Güvenlik Anahtarı (Şifre)"
-                              required
-                              value={loginPass}
-                              onChange={(e) => setLoginPass(e.target.value)}
-                              onFocus={() => setFocusedInput("password")}
-                              onBlur={() => setFocusedInput(null)}
-                              className="w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-white/10"
-                            />
-                            <div onClick={() => setShowPassword(!showPassword)} className="absolute right-3 cursor-pointer">
-                              {showPassword ? <Eye className="w-4 h-4 text-white/40 hover:text-white transition-colors"/> : <EyeClosed className="w-4 h-4 text-white/40 hover:text-white transition-colors"/>}
-                            </div>
-                            {focusedInput === "password" && <motion.div layoutId="input-highlight" className="absolute inset-0 bg-white/5 -z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />}
-                          </div>
-                        </motion.div>
+                        <div className="flex items-center gap-2 px-1 pt-1">
+                          <input
+                            type="checkbox"
+                            id="remember-me"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-purple-600 focus:ring-purple-500 cursor-pointer"
+                          />
+                          <label htmlFor="remember-me" className="text-xs text-white/70 cursor-pointer select-none">
+                            Beni Hatırla (30 gün)
+                          </label>
+                        </div>
                       </motion.div>
 
                       <motion.button type="submit" disabled={isLoading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full relative group mt-2">

@@ -69,7 +69,7 @@ export default function SepetClient() {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16 border-b border-white/[0.08] pb-10">
                     <div>
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-mono uppercase tracking-widest font-bold mb-5 shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-                            <Sparkles size={14} /> HIZLI SİPARİŞ & TESLİMAT
+                            <Sparkles size={14} /> HIZLI SİPARİŞ & İNTERAKTİF ÖDEME
                         </div>
                         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter">
                             Sepet<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400">iniz</span>

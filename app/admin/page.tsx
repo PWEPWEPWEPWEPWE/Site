@@ -60,14 +60,25 @@ export default function AdminDashboard() {
   // -- KİMLİK DOĞRULAMA STATELERİ --
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
-  const [loginUser, setLoginUser] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
+  const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
+  const [loginStep, setLoginStep] = useState<"login" | "otp">("login");
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
   // -- 3D GİRİŞ EKRANI STATELERİ --
   const [showPassword, setShowPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+
+  const otpRefs = [
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+  ];
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -86,6 +97,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (loginStep === 'otp') {
+      setTimeout(() => {
+        otpRefs[0].current?.focus();
+      }, 100);
+    }
+  }, [loginStep]);
 
   // ==========================================
   // == VERİTABANI ÇEKME İŞLEMLERİ (API)     ==
@@ -159,14 +178,21 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: loginUser, password: loginPass }),
+        body: JSON.stringify({ 
+          email: loginEmail.trim().toLowerCase(), 
+          password: loginPass 
+        }),
       });
       const data = await res.json();
       
       if (data.success) {
-        setCurrentUser({ id: data.user, username: data.user, role: data.role, isActive: true });
-        loadOrders();
-        loadUsers();
+        if (data.step === 'otp_sent') {
+          setLoginStep('otp');
+        } else {
+          setCurrentUser({ id: data.user, username: data.user, role: data.role, isActive: true });
+          loadOrders();
+          loadUsers();
+        }
       } else {
         setLoginError(data.message || 'Hatalı yönetici bilgileri!');
       }
@@ -177,10 +203,82 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleVerifyOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const code = otpCode.join("");
+    if (code.length !== 6) return;
+
+    setIsLoading(true);
+    setLoginError("");
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: loginEmail.trim().toLowerCase(), 
+          password: loginPass,
+          otp: code 
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setCurrentUser({ id: data.user, username: data.user, role: data.role, isActive: true });
+        loadOrders();
+        loadUsers();
+      } else {
+        setLoginError(data.message || 'Hatalı doğrulama kodu!');
+        setOtpCode(["", "", "", "", "", ""]);
+        otpRefs[0].current?.focus();
+      }
+    } catch (err) {
+      setLoginError("Doğrulama sırasında hata oluştu!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) value = value[value.length - 1];
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otpCode];
+    newOtp[index] = value;
+    setOtpCode(newOtp);
+
+    if (value && index < 5) {
+      otpRefs[index + 1].current?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otpCode[index] && index > 0) {
+      otpRefs[index - 1].current?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
+    if (!/^\d{6}$/.test(pastedData)) return;
+
+    const newOtp = pastedData.split("");
+    setOtpCode(newOtp);
+    otpRefs[5].current?.focus();
+    
+    setTimeout(() => {
+      const submitBtn = document.getElementById('otp-submit-btn');
+      if (submitBtn) submitBtn.click();
+    }, 100);
+  };
+
   const handleLogout = () => {
     setCurrentUser(null);
-    setLoginUser("");
+    setLoginEmail("");
     setLoginPass("");
+    setLoginStep("login");
+    setOtpCode(["", "", "", "", "", ""]);
   };
 
   // ==========================================
@@ -267,7 +365,7 @@ export default function AdminDashboard() {
   // ==========================================
   if (!currentUser) {
     return (
-      <div className="min-h-screen w-screen bg-black relative overflow-hidden flex items-center justify-center">
+      <div className="min-h-screen w-screen bg-black relative overflow-hidden flex items-center justify-center py-10">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-500/40 via-purple-700/50 to-black" />
         <div className="absolute inset-0 opacity-[0.03] mix-blend-soft-light" 
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, backgroundSize: '200px 200px' }}
@@ -320,7 +418,7 @@ export default function AdminDashboard() {
                   </motion.h1>
                   
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-white/60 text-xs">
-                    Güvenli alana erişmek için kimliğinizi doğrulayın.
+                    {loginStep === 'login' ? 'Güvenli alana erişmek için kimliğinizi doğrulayın.' : 'E-posta adresinize gönderilen 6 haneli kodu girin.'}
                   </motion.p>
                 </div>
 
@@ -331,59 +429,100 @@ export default function AdminDashboard() {
                   </motion.div>
                 )}
 
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <motion.div className="space-y-3">
-                    <motion.div className={`relative ${focusedInput === "email" ? 'z-10' : ''}`} whileFocus={{ scale: 1.02 }} whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
-                      <div className="absolute -inset-[0.5px] bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                      <div className="relative flex items-center overflow-hidden rounded-lg">
-                        <Mail className={`absolute left-3 w-4 h-4 transition-all duration-300 ${focusedInput === "email" ? 'text-white' : 'text-white/40'}`} />
-                        <Input
-                          type="text"
-                          placeholder="Yönetici Kullanıcı Adı"
-                          required
-                          value={loginUser}
-                          onChange={(e) => setLoginUser(e.target.value)}
-                          onFocus={() => setFocusedInput("email")}
-                          onBlur={() => setFocusedInput(null)}
-                          className="w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-3 focus:bg-white/10"
-                        />
-                        {focusedInput === "email" && <motion.div layoutId="input-highlight" className="absolute inset-0 bg-white/5 -z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />}
-                      </div>
-                    </motion.div>
+                <AnimatePresence mode="wait">
+                  {loginStep === 'login' ? (
+                    <motion.form key="login-form" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} onSubmit={handleLogin} className="space-y-4">
+                      <motion.div className="space-y-3">
+                        <motion.div className={`relative ${focusedInput === "email" ? 'z-10' : ''}`} whileFocus={{ scale: 1.02 }} whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                          <div className="absolute -inset-[0.5px] bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                          <div className="relative flex items-center overflow-hidden rounded-lg">
+                            <Mail className={`absolute left-3 w-4 h-4 transition-all duration-300 ${focusedInput === "email" ? 'text-white' : 'text-white/40'}`} />
+                            <Input
+                              type="email"
+                              autoComplete="email"
+                              placeholder="Yönetici E-posta Adresi"
+                              required
+                              value={loginEmail}
+                              onChange={(e) => setLoginEmail(e.target.value)}
+                              onFocus={() => setFocusedInput("email")}
+                              onBlur={() => setFocusedInput(null)}
+                              className="w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-3 focus:bg-white/10"
+                            />
+                            {focusedInput === "email" && <motion.div layoutId="input-highlight" className="absolute inset-0 bg-white/5 -z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />}
+                          </div>
+                        </motion.div>
 
-                    <motion.div className={`relative ${focusedInput === "password" ? 'z-10' : ''}`} whileFocus={{ scale: 1.02 }} whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
-                      <div className="absolute -inset-[0.5px] bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                      <div className="relative flex items-center overflow-hidden rounded-lg">
-                        <Lock className={`absolute left-3 w-4 h-4 transition-all duration-300 ${focusedInput === "password" ? 'text-white' : 'text-white/40'}`} />
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Güvenlik Anahtarı (Şifre)"
-                          required
-                          value={loginPass}
-                          onChange={(e) => setLoginPass(e.target.value)}
-                          onFocus={() => setFocusedInput("password")}
-                          onBlur={() => setFocusedInput(null)}
-                          className="w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-white/10"
-                        />
-                        <div onClick={() => setShowPassword(!showPassword)} className="absolute right-3 cursor-pointer">
-                          {showPassword ? <Eye className="w-4 h-4 text-white/40 hover:text-white transition-colors"/> : <EyeClosed className="w-4 h-4 text-white/40 hover:text-white transition-colors"/>}
+                        <motion.div className={`relative ${focusedInput === "password" ? 'z-10' : ''}`} whileFocus={{ scale: 1.02 }} whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                          <div className="absolute -inset-[0.5px] bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                          <div className="relative flex items-center overflow-hidden rounded-lg">
+                            <Lock className={`absolute left-3 w-4 h-4 transition-all duration-300 ${focusedInput === "password" ? 'text-white' : 'text-white/40'}`} />
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Güvenlik Anahtarı (Şifre)"
+                              required
+                              value={loginPass}
+                              onChange={(e) => setLoginPass(e.target.value)}
+                              onFocus={() => setFocusedInput("password")}
+                              onBlur={() => setFocusedInput(null)}
+                              className="w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-white/10"
+                            />
+                            <div onClick={() => setShowPassword(!showPassword)} className="absolute right-3 cursor-pointer">
+                              {showPassword ? <Eye className="w-4 h-4 text-white/40 hover:text-white transition-colors"/> : <EyeClosed className="w-4 h-4 text-white/40 hover:text-white transition-colors"/>}
+                            </div>
+                            {focusedInput === "password" && <motion.div layoutId="input-highlight" className="absolute inset-0 bg-white/5 -z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />}
+                          </div>
+                        </motion.div>
+                      </motion.div>
+
+                      <motion.button type="submit" disabled={isLoading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full relative group mt-2">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg blur opacity-40 group-hover:opacity-70 transition duration-300" />
+                        <div className="relative flex items-center justify-center gap-2 w-full bg-black/80 border border-white/10 py-2.5 rounded-lg text-white font-medium hover:bg-black transition-colors disabled:opacity-50 text-sm">
+                          {isLoading ? (
+                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full" />
+                          ) : (
+                            <>Kod Gönder <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/></>
+                          )}
                         </div>
-                        {focusedInput === "password" && <motion.div layoutId="input-highlight" className="absolute inset-0 bg-white/5 -z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />}
+                      </motion.button>
+                    </motion.form>
+                  ) : (
+                    <motion.form key="otp-form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} onSubmit={handleVerifyOtp} className="space-y-6">
+                      <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+                        {otpCode.map((digit, index) => (
+                          <input
+                            key={index}
+                            ref={otpRefs[index]}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            autoFocus={index === 0}
+                            onChange={(e) => handleOtpChange(index, e.target.value)}
+                            onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                            className="w-10 h-12 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold text-white focus:border-purple-500 focus:bg-white/10 outline-none transition-all"
+                          />
+                        ))}
                       </div>
-                    </motion.div>
-                  </motion.div>
 
-                  <motion.button type="submit" disabled={isLoading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full relative group mt-2">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg blur opacity-40 group-hover:opacity-70 transition duration-300" />
-                    <div className="relative flex items-center justify-center gap-2 w-full bg-black/80 border border-white/10 py-2.5 rounded-lg text-white font-medium hover:bg-black transition-colors disabled:opacity-50 text-sm">
-                      {isLoading ? (
-                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full" />
-                      ) : (
-                        <>Sisteme Giriş <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/></>
-                      )}
-                    </div>
-                  </motion.button>
-                </form>
+                      <div className="space-y-3">
+                        <motion.button id="otp-submit-btn" type="submit" disabled={isLoading || otpCode.some(d => !d)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full relative group">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg blur opacity-40 group-hover:opacity-70 transition duration-300" />
+                          <div className="relative flex items-center justify-center gap-2 w-full bg-black/80 border border-white/10 py-2.5 rounded-lg text-white font-medium hover:bg-black transition-colors disabled:opacity-50 text-sm">
+                            {isLoading ? (
+                              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full" />
+                            ) : (
+                              <>Doğrula ve Gir <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/></>
+                            )}
+                          </div>
+                        </motion.button>
+                        
+                        <button type="button" onClick={() => setLoginStep('login')} className="w-full text-xs text-white/40 hover:text-white transition-colors py-1">
+                          E-posta adresini değiştir
+                        </button>
+                      </div>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
 
                 <div className="mt-5 text-center flex flex-col gap-2 relative z-10">
                   <Link href="/" className="text-xs text-white/40 hover:text-white transition-colors">

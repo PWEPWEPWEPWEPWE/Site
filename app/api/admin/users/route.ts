@@ -34,8 +34,9 @@ export async function POST(request: Request) {
       if (!username || !password) {
         return new Response(JSON.stringify({ success: false, message: "Kullanıcı adı ve şifre gerekli" }), { status: 400, headers: { 'content-type': 'application/json' } });
       }
+      const normalizedUsername = username.trim().toLowerCase();
       await DB.prepare("INSERT INTO admin_users (username, password, status, role) VALUES (?, ?, 'active', 'admin')")
-        .bind(username, password)
+        .bind(normalizedUsername, password)
         .run();
       return new Response(JSON.stringify({ success: true, message: "Yeni yönetici eklendi" }), { headers: { 'content-type': 'application/json' } });
     }

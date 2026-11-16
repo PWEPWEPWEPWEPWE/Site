@@ -4,6 +4,7 @@ interface EmailOptions {
   to: string | string[];
   subject: string;
   html: string;
+  text?: string;
   from?: string;
 }
 
@@ -11,6 +12,7 @@ export async function sendEmail({
   to,
   subject,
   html,
+  text,
   from = 'AuraX Studio <noreply@auraxstudio.com.tr>',
 }: EmailOptions) {
   try {
@@ -22,18 +24,24 @@ export async function sendEmail({
       return { success: false, error: "RESEND_API_KEY not found" };
     }
 
+    const body: any = {
+      from,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+    };
+
+    if (text) {
+      body.text = text;
+    }
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from,
-        to: Array.isArray(to) ? to : [to],
-        subject,
-        html,
-      }),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();

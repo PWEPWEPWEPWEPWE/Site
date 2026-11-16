@@ -18,11 +18,20 @@ export const getOTPEmailTemplate = (code: string) => {
               </tr>
               <tr>
                 <td style="padding: 40px; text-align: center;">
-                  <!-- Logo & Branding -->
+                  <!-- Logo & Branding with PNG Logo and Typographic Badge -->
                   <div style="margin-bottom: 24px;">
-                    <div style="display: inline-block; background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 14px; padding: 12px 24px;">
-                      <span style="font-size: 20px; font-weight: 900; letter-spacing: -0.025em; color: #ffffff; text-transform: uppercase;">AURAX <span style="color: #8b5cf6;">STUDIO</span></span>
-                    </div>
+                    <table role="presentation" align="center" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding-right: 12px; vertical-align: middle;">
+                          <img src="https://auraxstudio.com.tr/1000010436.png" alt="AuraX Studio Logo" width="36" height="36" style="width: 36px; height: 36px; border-radius: 10px; display: block; border: 1px solid rgba(139,92,246,0.4);" />
+                        </td>
+                        <td style="vertical-align: middle;">
+                          <div style="display: inline-block; background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 14px; padding: 10px 20px;">
+                            <span style="font-size: 18px; font-weight: 900; letter-spacing: -0.025em; color: #ffffff; text-transform: uppercase;">AURAX <span style="color: #8b5cf6;">STUDIO</span></span>
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
                   </div>
 
                   <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.025em; color: #ffffff;">Yönetim Paneli Doğrulama</h1>
@@ -71,10 +80,10 @@ export const getOrderNotificationTemplate = (order: any) => {
   const itemsHtml = items.map((item: any) => `
     <tr>
       <td style="padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: #ffffff; font-size: 14px; font-weight: 600;">
-        ${item.title || item.name || 'Ürün / Hizmet'}
+        ${item.title || item.name || 'Ürün / Hizmet'} ${item.quantity ? `<span style="color: #a855f7; font-size: 12px; font-weight: normal;">(x${item.quantity})</span>` : ''}
       </td>
       <td style="padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: #a855f7; font-size: 15px; font-weight: 700; text-align: right;">
-        ${item.price || 0} ₺
+        ${(item.price || 0) * (item.quantity || 1)} ₺
       </td>
     </tr>
   `).join('');
@@ -98,13 +107,22 @@ export const getOrderNotificationTemplate = (order: any) => {
               </tr>
               <tr>
                 <td style="padding: 40px;">
-                  <!-- Logo & Header -->
+                  <!-- Logo & Header with PNG Logo and Typographic Badge -->
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
                       <td>
-                        <div style="display: inline-block; background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; padding: 8px 16px;">
-                          <span style="font-size: 16px; font-weight: 900; letter-spacing: -0.025em; color: #ffffff; text-transform: uppercase;">AURAX <span style="color: #8b5cf6;">STUDIO</span></span>
-                        </div>
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td style="padding-right: 10px; vertical-align: middle;">
+                              <img src="https://auraxstudio.com.tr/1000010436.png" alt="AuraX Studio Logo" width="32" height="32" style="width: 32px; height: 32px; border-radius: 8px; display: block; border: 1px solid rgba(139,92,246,0.4);" />
+                            </td>
+                            <td style="vertical-align: middle;">
+                              <div style="display: inline-block; background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; padding: 8px 16px;">
+                                <span style="font-size: 16px; font-weight: 900; letter-spacing: -0.025em; color: #ffffff; text-transform: uppercase;">AURAX <span style="color: #8b5cf6;">STUDIO</span></span>
+                              </div>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                       <td align="right">
                         <span style="background-color: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Yeni Sipariş</span>

@@ -3,19 +3,20 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 export type CartItem = {
-  cartId?: string; // Her ekleme için benzersiz ID
   id: string | number;
   title: string;
   price: number;
   image: string;
   category: string;
+  quantity?: number;
 };
 
 type CartContextType = {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (cartId: string) => void;
-  clearCart: () => void; // HATA VEREN FONKSİYON EKLENDİ
+  removeFromCart: (id: string | number) => void;
+  updateQuantity: (id: string | number, delta: number) => void;
+  clearCart: () => void;
   cartTotal: number;
 };
 
@@ -42,13 +43,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart]);
 
   const addToCart = (item: CartItem) => {
-    // Ürüne rastgele bir cartId atayarak aynı üründen defalarca eklenebilmesini sağlıyoruz
-    const newItem = { ...item, cartId: Math.random().toString(36).substr(2, 9) };
-    setCart((prev) => [...prev, newItem]);
+    setCart((prev) => {
+      const existingIndex = prev.findIndex((i) => i.id === item.id);
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        const currentQty = updated[existingIndex].quantity || 1;
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          quantity: currentQty + 1
+        };
+        return updated;
+      } else {
+        return [...prev, { ...item, quantity: 1 }];
+      }
+    });
   };
 
-  const removeFromCart = (cartId: string) => {
-    setCart((prev) => prev.filter((item) => item.cartId !== cartId));
+  const removeFromCart = (id: string | number) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const updateQuantity = (id: string | number, delta: number) => {
+    setCart((prev) => {
+      return prev.map((item) => {
+        if (item.id === id) {
+          const newQty = (item.quantity || 1) + delta;
+          return newQty > 0 ? { ...item, quantity: newQty } : null;
+        }
+        return item;
+      }).filter(Boolean) as CartItem[];
+    });
   };
 
   // Sepeti tamamen boşaltma fonksiyonu
@@ -56,10 +80,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart([]);
   };
 
-  const cartTotal = cart.reduce((total, item) => total + item.price, 0);
+  const cartTotal = cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, cartTotal }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal }}>
       {children}
     </CartContext.Provider>
   );
@@ -72,4 +96,3 @@ export function useCart() {
   }
   return context;
 }
-

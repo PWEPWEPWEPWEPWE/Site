@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, ShoppingBag, ArrowLeft, Send, CheckCircle2, ShoppingCart, User, Mail, FileText, Sparkles, ShieldCheck } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowLeft, Send, CheckCircle2, ShoppingCart, User, Mail, FileText, Sparkles, ShieldCheck, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useLanguage } from '@/context/language-context';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
 
 export default function SepetClient() {
-    const { cart, removeFromCart, clearCart, cartTotal } = useCart();
+    const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useCart();
     const { t } = useLanguage();
 
     const [fullName, setFullName] = useState('');
@@ -54,7 +54,7 @@ export default function SepetClient() {
             setIsSubmitting(false);
         }
 
-        setTimeout(() => setSubmitted(false), 5000);
+        setTimeout(() => setSubmitted(false), 6000);
     };
 
     return (
@@ -103,7 +103,7 @@ export default function SepetClient() {
                         {/* Sol Taraf - Ürün Listesi */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="flex justify-between items-center bg-white/[0.02] border border-white/5 px-6 py-4 rounded-2xl backdrop-blur-xl">
-                                <span className="text-sm font-bold text-gray-300">Sepetteki Hizmetler ({cart.length})</span>
+                                <span className="text-sm font-bold text-gray-300">Sepetteki Hizmetler ({cart.reduce((acc, item) => acc + (item.quantity || 1), 0)})</span>
                                 {cart.length > 0 && (
                                     <span className="px-4 py-1.5 bg-purple-500/10 border border-purple-500/25 text-purple-400 rounded-xl text-sm font-mono font-bold shadow-inner">
                                         Toplam: {cartTotal} ₺
@@ -124,22 +124,22 @@ export default function SepetClient() {
                                     </EmptyHeader>
                                     <EmptyContent className="mt-8">
                                         <Button asChild className="bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl px-8 h-12 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
-                                            <Link href="/#services">Hizmetleri Keşfet</Link>
+                                            <Link href="/#services">Hizmetleri İncele</Link>
                                         </Button>
                                     </EmptyContent>
                                 </Empty>
                             ) : (
                                 <div className="space-y-4">
                                     <AnimatePresence>
-                                        {cart.map((item: any, index: number) => (
+                                        {cart.map((item) => (
                                             <motion.div
-                                                key={item.cartId || index}
+                                                key={item.id}
                                                 layout
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, x: -50 }}
                                                 transition={{ duration: 0.3 }}
-                                                className="bg-zinc-950/60 backdrop-blur-xl border border-white/[0.08] rounded-[24px] p-6 flex items-center justify-between gap-6 shadow-[0_0_30px_rgba(0,0,0,0.4)] hover:border-purple-500/30 transition-all duration-300 group"
+                                                className="bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-purple-500/40 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-[0_0_30px_rgba(0,0,0,0.4)] transition-all duration-300 group"
                                             >
                                                 <div className="flex items-center gap-5">
                                                     {item.image ? (
@@ -152,16 +152,38 @@ export default function SepetClient() {
                                                     <div>
                                                         <span className="text-[10px] font-mono text-purple-400 uppercase tracking-widest font-bold bg-purple-500/10 px-2.5 py-1 rounded-md">{item.category || 'Hizmet'}</span>
                                                         <h4 className="font-extrabold text-white text-lg tracking-tight mt-2">{item.title}</h4>
-                                                        <p className="text-sm text-gray-300 font-mono mt-1 font-bold">{item.price} ₺</p>
+                                                        <p className="text-sm text-purple-300 font-mono mt-1 font-bold">{item.price} ₺</p>
                                                     </div>
                                                 </div>
-                                                <button 
-                                                    onClick={() => removeFromCart(item.cartId)} 
-                                                    className="w-12 h-12 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/20 transition-all duration-200 hover:scale-105" 
-                                                    title="Ürünü Kaldır"
-                                                >
-                                                    <Trash2 size={20} />
-                                                </button>
+
+                                                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+                                                    {/* Quantity Controls */}
+                                                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl p-1">
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, -1)}
+                                                            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 flex items-center justify-center text-gray-300 hover:text-white transition-colors"
+                                                            title="Azalt"
+                                                        >
+                                                            <Minus size={14} />
+                                                        </button>
+                                                        <span className="w-8 text-center font-mono font-bold text-sm">{item.quantity || 1}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, 1)}
+                                                            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 flex items-center justify-center text-gray-300 hover:text-white transition-colors"
+                                                            title="Arttır"
+                                                        >
+                                                            <Plus size={14} />
+                                                        </button>
+                                                    </div>
+
+                                                    <button 
+                                                        onClick={() => removeFromCart(item.id)} 
+                                                        className="w-12 h-12 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/20 transition-all duration-200 hover:scale-105" 
+                                                        title="Ürünü Kaldır"
+                                                    >
+                                                        <Trash2 size={20} />
+                                                    </button>
+                                                </div>
                                             </motion.div>
                                         ))}
                                     </AnimatePresence>
@@ -176,8 +198,8 @@ export default function SepetClient() {
                             )}
                         </div>
 
-                        {/* Sağ Taraf - İletişim ve Sipariş Formu (lg:sticky) */}
-                        <div className="lg:sticky lg:top-28 h-fit">
+                        {/* Sağ Taraf - İletişim ve Sipariş Formu (lg:sticky lg:top-24) */}
+                        <div className="lg:sticky lg:top-24 h-fit">
                             <div className="bg-zinc-950/80 backdrop-blur-3xl border border-white/10 rounded-[32px] p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -227,8 +249,8 @@ export default function SepetClient() {
                                     </div>
 
                                     <div className="pt-2">
-                                        <div className="flex justify-between items-center mb-4 px-2 text-sm">
-                                            <span className="text-gray-400">Toplam Tutar:</span>
+                                        <div className="flex justify-between items-center mb-4 px-3 py-3 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-sm shadow-[0_0_20px_rgba(168,85,247,0.12)]">
+                                            <span className="text-gray-300 font-medium">Toplam Tutar:</span>
                                             <span className="font-extrabold text-xl text-purple-400 font-mono">{cartTotal} ₺</span>
                                         </div>
 

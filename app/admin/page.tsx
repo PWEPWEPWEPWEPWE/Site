@@ -1,13 +1,12 @@
-
 'use client'
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { 
-  Mail, Lock, Eye, EyeClosed, ArrowRight, ShieldAlert,
+  Mail, Lock, ArrowRight, ShieldAlert,
   LayoutDashboard, ShoppingBag, Package, Settings, Trash2, 
-  CheckCircle2, Clock, Search, ArrowLeft, User, LogOut, Save, UserPlus, Shield 
+  CheckCircle2, Clock, Search, ArrowLeft, User, LogOut, Save, UserPlus, Shield, RefreshCw 
 } from 'lucide-react';
 
 import { cn } from "@/lib/utils";
@@ -66,6 +65,8 @@ export default function AdminDashboard() {
   const [loginStep, setLoginStep] = useState<"login" | "otp">("login");
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(300); // 5 minutes
+  const [canResend, setCanResend] = useState(false);
   
   // -- 3D GİRİŞ EKRANI STATELERİ --
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -102,8 +103,27 @@ export default function AdminDashboard() {
       setTimeout(() => {
         otpRefs[0].current?.focus();
       }, 100);
+      setCountdown(300);
+      setCanResend(false);
     }
   }, [loginStep]);
+
+  useEffect(() => {
+    let timer: any;
+    if (loginStep === 'otp' && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [loginStep, countdown]);
 
   // ==========================================
   // == VERİTABANI ÇEKME İŞLEMLERİ (API)     ==
@@ -327,13 +347,12 @@ export default function AdminDashboard() {
   };
 
   const deleteOrder = (id: string) => {
-    // Sadece arayüzden gizle (Gerçek veritabanı silme API'si eklenene kadar)
     setOrders(orders.filter(o => o.id !== id));
   };
 
   const handleChangeOwnPassword = (e: React.FormEvent) => {
     e.preventDefault();
-    setSettingsMessage("Şifre güncelleme özelliği şu an bakımda.");
+    setSettingsMessage("Şifre güncelleme özelliği güvenli OTP altyapısına geçilmiştir.");
     setTimeout(() => setSettingsMessage(""), 3000);
   };
 
@@ -342,7 +361,6 @@ export default function AdminDashboard() {
     (o) => o.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || o.contact.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const pendingCount = orders.filter((o) => o.status === "bekliyor").length;
-  const completedCount = orders.filter((o) => o.status === "tamamlandi").length;
 
   if (!isMounted) {
     return (
@@ -380,15 +398,8 @@ export default function AdminDashboard() {
                 <motion.div className="absolute top-0 right-0 h-[50%] w-[3px] bg-gradient-to-b from-transparent via-white to-transparent opacity-70" initial={{ filter: "blur(2px)" }} animate={{ top: ["-50%", "100%"], opacity: [0.3, 0.7, 0.3], filter: ["blur(1px)", "blur(2.5px)", "blur(1px)"] }} transition={{ top: { duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 1, delay: 0.6 }, opacity: { duration: 1.2, repeat: Infinity, repeatType: "mirror", delay: 0.6 }, filter: { duration: 1.5, repeat: Infinity, repeatType: "mirror", delay: 0.6 } }} />
                 <motion.div className="absolute bottom-0 right-0 h-[3px] w-[50%] bg-gradient-to-r from-transparent via-white to-transparent opacity-70" initial={{ filter: "blur(2px)" }} animate={{ right: ["-50%", "100%"], opacity: [0.3, 0.7, 0.3], filter: ["blur(1px)", "blur(2.5px)", "blur(1px)"] }} transition={{ right: { duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 1, delay: 1.2 }, opacity: { duration: 1.2, repeat: Infinity, repeatType: "mirror", delay: 1.2 }, filter: { duration: 1.5, repeat: Infinity, repeatType: "mirror", delay: 1.2 } }} />
                 <motion.div className="absolute bottom-0 left-0 h-[50%] w-[3px] bg-gradient-to-b from-transparent via-white to-transparent opacity-70" initial={{ filter: "blur(2px)" }} animate={{ bottom: ["-50%", "100%"], opacity: [0.3, 0.7, 0.3], filter: ["blur(1px)", "blur(2.5px)", "blur(1px)"] }} transition={{ bottom: { duration: 2.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 1, delay: 1.8 }, opacity: { duration: 1.2, repeat: Infinity, repeatType: "mirror", delay: 1.8 }, filter: { duration: 1.5, repeat: Infinity, repeatType: "mirror", delay: 1.8 } }} />
-                
-                <motion.div className="absolute top-0 left-0 h-[5px] w-[5px] rounded-full bg-white/40 blur-[1px]" animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 2, repeat: Infinity, repeatType: "mirror" }} />
-                <motion.div className="absolute top-0 right-0 h-[8px] w-[8px] rounded-full bg-white/60 blur-[2px]" animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 2.4, repeat: Infinity, repeatType: "mirror", delay: 0.5 }} />
-                <motion.div className="absolute bottom-0 right-0 h-[8px] w-[8px] rounded-full bg-white/60 blur-[2px]" animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 2.2, repeat: Infinity, repeatType: "mirror", delay: 1 }} />
-                <motion.div className="absolute bottom-0 left-0 h-[5px] w-[5px] rounded-full bg-white/40 blur-[1px]" animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 2.3, repeat: Infinity, repeatType: "mirror", delay: 1.5 }} />
               </div>
 
-              <div className="absolute -inset-[0.5px] rounded-2xl bg-gradient-to-r from-white/3 via-white/7 to-white/3 opacity-0 group-hover:opacity-70 transition-opacity duration-500" />
-              
               <div className="relative bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/[0.05] shadow-2xl overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `linear-gradient(135deg, white 0.5px, transparent 0.5px), linear-gradient(45deg, white 0.5px, transparent 0.5px)`, backgroundSize: '30px 30px' }} />
 
@@ -398,11 +409,9 @@ export default function AdminDashboard() {
                     animate={{ scale: 1, opacity: 1 }} 
                     transition={{ duration: 0.5, ease: "easeOut" }}
                   >
-                    <img 
-                      src="/Aurax_20261109_044639_0000.svg" 
-                      alt="AuraX Studio" 
-                      className="mx-auto mb-4 h-14 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" 
-                    />
+                    <div className="inline-block bg-gradient-to-br from-purple-500/20 to-indigo-500/10 border border-purple-500/30 rounded-xl p-3 mb-3">
+                      <span className="text-white font-extrabold text-sm tracking-wider uppercase">AURAX <span className="text-purple-400">STUDIO</span></span>
+                    </div>
                   </motion.div>
 
                   <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
@@ -410,7 +419,7 @@ export default function AdminDashboard() {
                   </motion.h1>
                   
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-white/60 text-xs">
-                    {loginStep === 'login' ? 'Güvenli alana erişmek için kimliğinizi doğrulayın.' : 'E-posta adresinize gönderilen 6 haneli kodu girin.'}
+                    {loginStep === 'login' ? 'Güvenli alana erişmek için kimliğinizi doğrulayın.' : `${loginEmail} adresine gönderilen 6 haneli kodu girin.`}
                   </motion.p>
                 </div>
 
@@ -440,7 +449,6 @@ export default function AdminDashboard() {
                               onBlur={() => setFocusedInput(null)}
                               className="w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-3 focus:bg-white/10"
                             />
-                            {focusedInput === "email" && <motion.div layoutId="input-highlight" className="absolute inset-0 bg-white/5 -z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />}
                           </div>
                         </motion.div>
 
@@ -488,6 +496,16 @@ export default function AdminDashboard() {
                         ))}
                       </div>
 
+                      <div className="text-center text-xs text-white/50">
+                        {countdown > 0 ? (
+                          <p className="flex items-center justify-center gap-1">
+                            <Clock size={12} /> Kalan süre: {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
+                          </p>
+                        ) : (
+                          <p className="text-amber-400">Kodun süresi doldu.</p>
+                        )}
+                      </div>
+
                       <div className="space-y-3">
                         <motion.button id="otp-submit-btn" type="submit" disabled={isLoading || otpCode.some(d => !d)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full relative group">
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg blur opacity-40 group-hover:opacity-70 transition duration-300" />
@@ -500,9 +518,24 @@ export default function AdminDashboard() {
                           </div>
                         </motion.button>
                         
-                        <button type="button" onClick={() => setLoginStep('login')} className="w-full text-xs text-white/40 hover:text-white transition-colors py-1">
-                          E-posta adresini değiştir
-                        </button>
+                        <div className="flex items-center justify-between pt-2">
+                          <button 
+                            type="button" 
+                            disabled={!canResend && countdown > 0} 
+                            onClick={handleLogin} 
+                            className="text-xs text-purple-400 hover:text-purple-300 transition-colors disabled:opacity-40 flex items-center gap-1"
+                          >
+                            <RefreshCw size={12} /> Kodu Tekrar Gönder
+                          </button>
+                          
+                          <button 
+                            type="button" 
+                            onClick={() => { setLoginStep('login'); setOtpCode(["","","","","",""]); }} 
+                            className="text-xs text-white/40 hover:text-white transition-colors"
+                          >
+                            E-postayı Değiştir
+                          </button>
+                        </div>
                       </div>
                     </motion.form>
                   )}
@@ -672,21 +705,17 @@ export default function AdminDashboard() {
                       <div className="w-12 h-12 bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center rounded-2xl"><Lock size={24} /></div>
                       <div>
                         <h3 className="text-xl font-bold text-white">Güvenlik Ayarları</h3>
-                        <p className="text-xs text-gray-500">Kendi hesap şifrenizi güncelleyin</p>
+                        <p className="text-xs text-gray-500">Mevcut hesap güvenliğiniz</p>
                       </div>
                     </div>
                     <form onSubmit={handleChangeOwnPassword} className="space-y-5">
                       <div>
-                        <label className="text-xs text-gray-400 font-mono uppercase tracking-widest ml-1 mb-2 block">Kullanıcı Adınız</label>
-                        <input type="text" disabled value={currentUser.username} className="w-full bg-black/30 border border-white/5 rounded-2xl py-3 px-4 text-sm text-gray-500 cursor-not-allowed" />
+                        <label className="text-xs text-gray-400 font-mono uppercase tracking-widest ml-1 mb-2 block">Kullanıcı Adınız / E-posta</label>
+                        <input type="text" disabled value={currentUser.username} className="w-full bg-black/30 border border-white/5 rounded-2xl py-3 px-4 text-sm text-gray-400 cursor-not-allowed" />
                       </div>
-                      <div>
-                        <label className="text-xs text-gray-400 font-mono uppercase tracking-widest ml-1 mb-2 block">Yeni Şifreniz</label>
-                        <input type="text" value={ownPassword} onChange={(e) => setOwnPassword(e.target.value)} required className="w-full bg-black/50 border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:border-purple-500 outline-none transition-colors" />
+                      <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-xs text-gray-400">
+                        Bu sistem şifresiz 6 haneli OTP e-posta doğrulama altyapısı ile korunmaktadır. Şifre değişikliğine gerek yoktur.
                       </div>
-                      <button type="submit" className="w-full mt-4 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] flex items-center justify-center gap-2">
-                        <Save size={18} /> Şifreyi Kaydet
-                      </button>
                     </form>
                   </div>
 
@@ -702,10 +731,10 @@ export default function AdminDashboard() {
                         </div>
                         <form onSubmit={handleAddManager} className="space-y-5">
                           <div>
-                            <input type="text" placeholder="Yönetici Kullanıcı Adı" value={newManagerUser} onChange={(e) => setNewManagerUser(e.target.value)} required className="w-full bg-black/50 border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:border-blue-500 outline-none transition-colors" />
+                            <input type="text" placeholder="Yönetici E-posta Adresi" value={newManagerUser} onChange={(e) => setNewManagerUser(e.target.value)} required className="w-full bg-black/50 border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:border-blue-500 outline-none transition-colors" />
                           </div>
                           <div>
-                            <input type="text" placeholder="Geçici Şifre" value={newManagerPass} onChange={(e) => setNewManagerPass(e.target.value)} required className="w-full bg-black/50 border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:border-blue-500 outline-none transition-colors" />
+                            <input type="text" placeholder="Geçici Şifre / Not" value={newManagerPass} onChange={(e) => setNewManagerPass(e.target.value)} required className="w-full bg-black/50 border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:border-blue-500 outline-none transition-colors" />
                           </div>
                           <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] flex items-center justify-center gap-2">
                             <UserPlus size={18} /> Hesabı Oluştur
@@ -756,5 +785,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
-        

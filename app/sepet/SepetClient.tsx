@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, ShoppingBag, ArrowLeft, Send, CheckCircle2, ShoppingCart, User, Mail, Phone, MessageSquare, Sparkles, ShieldCheck, Plus, Minus, Zap, Lock, Clock } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowLeft, Send, CheckCircle2, ShoppingCart, User, Mail, Phone, MessageSquare, Sparkles, Plus, Minus, Zap, Lock, Clock } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useLanguage } from '@/context/language-context';
 import Link from 'next/link';
@@ -65,11 +65,11 @@ export default function SepetClient() {
             <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-fuchsia-600/10 blur-[220px] pointer-events-none rounded-full" />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                {/* Editorial Hero Header */}
+                {/* 1. Üst Başlık ve Güven Şeridi */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16 border-b border-white/[0.08] pb-10">
                     <div>
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-mono uppercase tracking-widest font-bold mb-5 shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-                            <Sparkles size={14} /> Sipariş & Ödeme Adımı
+                            <Sparkles size={14} /> HIZLI SİPARİŞ & TESLİMAT
                         </div>
                         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter">
                             Sepet<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400">iniz</span>
@@ -86,7 +86,7 @@ export default function SepetClient() {
                                     <ShoppingBag size={16} />
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-mono text-gray-400 uppercase">Toplam Ürün</div>
+                                    <div className="text-[10px] font-mono text-gray-400 uppercase">Seçili Hizmet</div>
                                     <div className="text-sm font-extrabold text-white font-mono">{totalItemCount} Kalem</div>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@ export default function SepetClient() {
                             <div className="space-y-3">
                                 <h3 className="text-3xl font-extrabold tracking-tight text-white">Siparişiniz Başarıyla Alındı!</h3>
                                 <p className="text-sm text-gray-400 leading-relaxed max-w-md mx-auto">
-                                    Talebiniz başarıyla veritabanımıza kaydedildi ve ekibimize e-posta ile bildirildi. Discord veya e-posta adresiniz üzerinden en kısa sürede sizinle iletişime geçeceğiz.
+                                    Talebiniz başarıyla veritabanımıza kaydedildi ve ekibimize e-posta ile bildirildi. En kısa sürede sizinle iletişime geçeceğiz.
                                 </p>
                             </div>
                             <div className="pt-4">
@@ -123,7 +123,7 @@ export default function SepetClient() {
                         </div>
                     </motion.div>
                 ) : cart.length === 0 ? (
-                    /* Boş Sepet Ekranı (Empty State) */
+                    /* 3. Boş Sepet Ekranı (Empty State) */
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -143,9 +143,9 @@ export default function SepetClient() {
                         </div>
                     </motion.div>
                 ) : (
-                    /* 2 Sütunlu Asimetrik Düzen */
+                    /* 2. Asimetrik 2 Sütunlu Yerleşim */
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                        {/* Sol Sütun (lg:col-span-7) — Hizmet/Ürün Kartları */}
+                        {/* Sol Sütun (lg:col-span-7) — Katmanlı Hizmet Kartları */}
                         <div className="lg:col-span-7 space-y-4">
                             <div className="flex justify-between items-center bg-[#0d0d14]/60 border border-white/[0.08] px-6 py-4 rounded-2xl backdrop-blur-xl">
                                 <span className="text-xs font-mono uppercase tracking-wider text-gray-400 font-bold">
@@ -171,9 +171,9 @@ export default function SepetClient() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.95 }}
                                             transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-                                            className="bg-[#0d0d14]/80 backdrop-blur-xl border border-white/[0.08] hover:border-purple-500/40 transition-all duration-300 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-[0_10px_30px_rgba(0,0,0,0.4)] group"
+                                            className="bg-[#0d0d15]/90 backdrop-blur-xl border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.07)] hover:border-purple-500/40 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 group transition-all duration-300"
                                         >
-                                            {/* Sol: İkon / Görsel & Bilgi */}
+                                            {/* Sol: Mor tonlu ikon kutusu + Bilgi */}
                                             <div className="flex items-center gap-4">
                                                 {item.image ? (
                                                     <img 
@@ -197,11 +197,11 @@ export default function SepetClient() {
                                                 </div>
                                             </div>
 
-                                            {/* Sağ: Adet Kontrolü, Satır Toplamı ve Silme */}
+                                            {/* Sağ: Dokunsal adet kontrolü hapı, satır toplamı, silme */}
                                             <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/5">
                                                 <div className="text-right sm:mr-2">
-                                                    <div className="text-[10px] font-mono text-gray-500 uppercase">Ara Toplam</div>
-                                                    <div className="text-sm font-mono font-extrabold text-white">{itemTotal} ₺</div>
+                                                    <div className="text-[10px] font-mono text-gray-500 uppercase">Toplam</div>
+                                                    <div className="text-sm font-mono font-extrabold text-white tabular-nums">{itemTotal} ₺</div>
                                                 </div>
 
                                                 {/* Dokunsal Adet Kontrolü Hapı */}
@@ -213,7 +213,7 @@ export default function SepetClient() {
                                                     >
                                                         <Minus size={12} />
                                                     </button>
-                                                    <span className="w-8 text-center font-mono font-bold text-xs">{qty}</span>
+                                                    <span className="w-8 text-center font-mono font-bold text-xs tabular-nums">{qty}</span>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, 1)}
                                                         className="w-7 h-7 rounded-lg bg-white/5 hover:bg-purple-500/20 flex items-center justify-center text-gray-300 hover:text-purple-300 transition-colors"
@@ -235,88 +235,98 @@ export default function SepetClient() {
                                     );
                                 })}
                             </AnimatePresence>
+
+                            <div className="pt-2">
+                                <Link href="/#services" className="inline-flex items-center gap-2 text-xs font-mono text-purple-400 hover:text-purple-300 transition-colors">
+                                    <ArrowLeft size={14} /> Alışverişe / Hizmetlere Devam Et
+                                </Link>
+                            </div>
                         </div>
 
-                        {/* Sağ Sütun (lg:col-span-5) — Sipariş Özeti & İletişim Kartı (lg:sticky lg:top-24) */}
+                        {/* Sağ Sütun (lg:col-span-5) — lg:sticky lg:top-24 Kompakt Sipariş ve İletişim Kartı */}
                         <div className="lg:col-span-5 lg:sticky lg:top-24">
                             <div className="bg-[#0d0d14]/90 backdrop-blur-3xl border border-white/[0.08] rounded-[32px] p-8 shadow-[0_0_60px_rgba(0,0,0,0.6)] relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
                                 <h2 className="text-2xl font-extrabold mb-1 tracking-tight">Sipariş Özeti</h2>
-                                <p className="text-xs text-gray-400 mb-6">İletişim bilgilerinizi girerek talebinizi tamamlayın.</p>
+                                <p className="text-xs text-gray-400 mb-6">Bilgilerinizi girerek siparişinizi onaylayın.</p>
 
-                                {/* Üst Bölüm: Fiyat Dökümü */}
+                                {/* Kalem kalem özet ve neon genel toplam */}
                                 <div className="bg-black/50 border border-white/[0.06] rounded-2xl p-5 mb-6 space-y-3">
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-gray-400">Hizmet Kalemleri ({totalItemCount} Adet)</span>
-                                        <span className="font-mono font-medium text-white">{cartTotal} ₺</span>
+                                        <span className="text-gray-400">Ara Toplam ({totalItemCount} Kalem)</span>
+                                        <span className="font-mono font-medium text-white tabular-nums">{cartTotal} ₺</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-gray-400">Ön İnceleme & Danışmanlık</span>
+                                        <span className="text-gray-400">Kurulum & Danışmanlık</span>
                                         <span className="font-mono text-green-400 font-bold uppercase text-xs bg-green-500/10 px-2 py-0.5 rounded">Ücretsiz</span>
                                     </div>
                                     <div className="border-t border-white/[0.08] pt-3 flex justify-between items-center">
-                                        <span className="text-sm font-bold text-gray-200">Genel Toplam</span>
-                                        <span className="font-mono text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">
+                                        <span className="text-sm font-extrabold text-white">Genel Toplam</span>
+                                        <span className="font-mono text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400 tabular-nums">
                                             {cartTotal} ₺
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Alt Bölüm: Müşteri Bilgileri Formu */}
                                 <form onSubmit={handleCheckout} className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-2">
-                                            <User size={13} className="text-purple-400" /> Ad Soyad <span className="text-purple-400">*</span>
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            required 
-                                            placeholder="Adınız Soyadınız" 
-                                            value={fullName} 
-                                            onChange={e => setFullName(e.target.value)} 
-                                            className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
-                                        />
+                                    {/* Kompakt 2'li Grid: Ad Soyad & E-posta/Telefon */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                                                <User size={12} className="text-purple-400" /> Ad Soyad <span className="text-purple-400">*</span>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                required 
+                                                placeholder="Adınız Soyadınız" 
+                                                value={fullName} 
+                                                onChange={e => setFullName(e.target.value)} 
+                                                className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                                                <Mail size={12} className="text-purple-400" /> İletişim <span className="text-purple-400">*</span>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                required 
+                                                placeholder="Discord / E-posta" 
+                                                value={contact} 
+                                                onChange={e => setContact(e.target.value)} 
+                                                className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-2">
-                                            <Mail size={13} className="text-purple-400" /> Discord / E-posta <span className="text-purple-400">*</span>
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            required 
-                                            placeholder="örn: kullanici#0001 veya e-posta" 
-                                            value={contact} 
-                                            onChange={e => setContact(e.target.value)} 
-                                            className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
-                                        />
-                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                                                <Phone size={12} className="text-purple-400" /> Telefon
+                                            </label>
+                                            <input 
+                                                type="tel" 
+                                                placeholder="05XX XXX XX XX" 
+                                                value={phone} 
+                                                onChange={e => setPhone(e.target.value)} 
+                                                className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
+                                            />
+                                        </div>
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-2">
-                                            <Phone size={13} className="text-purple-400" /> Telefon Numarası
-                                        </label>
-                                        <input 
-                                            type="tel" 
-                                            placeholder="05XX XXX XX XX" 
-                                            value={phone} 
-                                            onChange={e => setPhone(e.target.value)} 
-                                            className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-2">
-                                            <MessageSquare size={13} className="text-purple-400" /> Özel İstek / Proje Notu
-                                        </label>
-                                        <textarea 
-                                            rows={2} 
-                                            placeholder="Projeniz hakkında eklemek istedikleriniz..." 
-                                            value={notes} 
-                                            onChange={e => setNotes(e.target.value)} 
-                                            className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none resize-none transition-all shadow-inner" 
-                                        />
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs text-gray-300 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                                                <MessageSquare size={12} className="text-purple-400" /> Not
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Proje notu..." 
+                                                value={notes} 
+                                                onChange={e => setNotes(e.target.value)} 
+                                                className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white placeholder:text-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all shadow-inner" 
+                                            />
+                                        </div>
                                     </div>
 
                                     <div className="pt-2">
@@ -331,7 +341,7 @@ export default function SepetClient() {
                                                 </span>
                                             ) : (
                                                 <span className="flex items-center justify-center gap-2">
-                                                    <Send size={18} /> Siparişi Tamamla
+                                                    <Send size={18} /> Siparişi Onayla
                                                 </span>
                                             )}
                                         </Button>
